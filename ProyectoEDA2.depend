@@ -1,0 +1,50 @@
+# depslib dependency file v1.0
+1793861610 source:c:\users\rodri\onedrive\escritorio\proyectoeda2\src\main.cpp
+	"../include/CsvLoader.h"
+	"../include/HeapArray.h"
+	<iostream>
+
+1793859055 source:c:\users\rodri\onedrive\escritorio\proyectoeda2\generators\generarcsv.cpp
+	"generarCsv.h"
+	<iostream>
+	<fstream>
+	<string>
+	<cstdlib>
+	<ctime>
+
+1793859054 c:\users\rodri\onedrive\escritorio\proyectoeda2\generators\generarcsv.h
+
+1793859553 c:\users\rodri\onedrive\escritorio\proyectoeda2\include\pedido.h
+	<string>
+
+1793859674 source:c:\users\rodri\onedrive\escritorio\proyectoeda2\src\pedido.cpp
+	"../include/Pedido.h"
+	<iostream>
+	<iomanip>
+
+1793861035 source:c:\users\rodri\onedrive\escritorio\proyectoeda2\src\csvloader.cpp
+	"../include/CsvLoader.h"
+	"../include/Pedido.h"
+	<iostream>
+	<fstream>
+	<sstream>
+
+1793861049 c:\users\rodri\onedrive\escritorio\proyectoeda2\include\csvloader.h
+	"Pedido.h"
+	<vector>
+
+1793861378 source:c:\users\rodri\onedrive\escritorio\proyectoeda2\src\hashtable.cpp
+	"../include/HashTable.h"
+	<iostream>
+
+1793861378 c:\users\rodri\onedrive\escritorio\proyectoeda2\include\hashtable.h
+	"Pedido.h"
+	<string>
+
+1793861611 source:c:\users\rodri\onedrive\escritorio\proyectoeda2\src\heaparray.cpp
+	"../include/HeapArray.h"
+	<iostream>
+
+1793861610 c:\users\rodri\onedrive\escritorio\proyectoeda2\include\heaparray.h
+	"Pedido.h"
+
