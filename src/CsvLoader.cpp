@@ -1,66 +1,49 @@
 #include "../include/CsvLoader.h"
-#include "../include/Pedido.h"
-#include <iostream>
-#include <fstream>
-#include <sstream>
+#include <cstdlib>
 using namespace std;
 
-// Separa una linea CSV por comas y devuelve los campos
-vector<string> splitCsv(const string& linea) {
-    vector<string> campos;
-    stringstream ss(linea);
-    string campo;
-    while (getline(ss, campo, ','))
-        campos.push_back(campo);
-    return campos;
-}
+// Convierte una linea del CSV en un Pedido.
+// Devuelve nullptr si la linea esta vacia o tiene datos invalidos.
+Pedido* parsearPedido(const string& linea) {
+    if (linea.empty()) return nullptr;
 
-vector<Pedido*> cargarCsv(const string& ruta) {
-    vector<Pedido*> pedidos;
-    ifstream archivo(ruta.c_str());
+    // 1) Separar la linea por comas en 8 campos
+    string campos[8];
+    int n = 0;                       // cuantos campos llevamos
+    string actual = "";              // el campo que estamos armando
 
-    if (!archivo.is_open()) {
-        cout << "ERROR: No se pudo abrir " << ruta << endl;
-        return pedidos;
-    }
-
-    string linea;
-    int lineaNum = 0;
-
-    while (getline(archivo, linea)) {
-        lineaNum++;
-
-        // Saltar lineas vacias
-        if (linea.empty()) continue;
-
-        vector<string> campos = splitCsv(linea);
-
-        // Verificar que tenga los 8 campos
-        if (campos.size() != 8) {
-            cout << "ADVERTENCIA: linea " << lineaNum
-                 << " tiene " << campos.size()
-                 << " campos, se esperaban 8. Saltando..." << endl;
-            continue;
+    for (int i = 0; i < (int)linea.size(); i++) {
+        char c = linea[i];
+        if (c == '\r') continue;     // ignorar salto de linea de Windows
+        if (c == ',') {
+            if (n >= 7) return nullptr;      // demasiados campos
+            campos[n] = actual;
+            n++;
+            actual = "";
+        } else {
+            actual += c;
         }
-
-        // Crear el pedido en el heap
-        Pedido* p = new Pedido(
-            campos[0],           // idPedido
-            campos[1],           // dniCliente
-            campos[2],           // tipoEnvio
-            atoi(campos[3].c_str()),   // nivelPrioridad
-            atof(campos[4].c_str()),   // montoDolares
-            campos[5],           // fecha
-            campos[6],           // hora
-            campos[7]            // estado
-        );
-
-        pedidos.push_back(p);
     }
+    campos[n] = actual;              // el ultimo campo no termina en coma
+    n++;
 
-    archivo.close();
-    cout << "CSV cargado: " << pedidos.size()
-         << " pedidos desde " << ruta << endl;
+    if (n != 8) return nullptr;      // faltan campos
 
-    return pedidos;
+    // 2) Validar los datos
+    if (campos[0] == "" || campos[1] == "") return nullptr;
+    if (!fechaValida(campos[5]))  return nullptr;
+    if (!horaValida(campos[6]))   return nullptr;
+    if (!estadoValido(campos[7])) return nullptr;
+
+    // 3) Crear el pedido
+    return new Pedido(
+        campos[0],                    // idPedido
+        campos[1],                    // dniCliente
+        campos[2],                    // tipoEnvio
+        atoi(campos[3].c_str()),      // nivelPrioridad
+        atof(campos[4].c_str()),      // montoDolares
+        campos[5],                    // fecha
+        campos[6],                    // hora
+        campos[7]                     // estado
+    );
 }
