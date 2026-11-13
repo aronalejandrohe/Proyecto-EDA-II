@@ -14,7 +14,6 @@ RBTree::~RBTree() {
     delete TNULL;
 }
 
-// Post-orden: libera los nodos (NO los Pedido)
 void RBTree::destruirArbol(NodoRB* n) {
     if (n != TNULL) {
         destruirArbol(n->izq);
@@ -28,7 +27,6 @@ NodoRB* RBTree::minimo(NodoRB* n) {
     return n;
 }
 
-// ------------------------------ Rotaciones -----------------------------
 void RBTree::rotacionIzquierda(NodoRB* x) {
     NodoRB* y = x->der;
     x->der = y->izq;
@@ -57,11 +55,9 @@ void RBTree::transplantar(NodoRB* u, NodoRB* v) {
     if (u->padre == nullptr) raiz = v;
     else if (u == u->padre->izq) u->padre->izq = v;
     else u->padre->der = v;
-    v->padre = u->padre;     // se asigna incluso si v es TNULL (lo usa la reparacion)
+    v->padre = u->padre;
 }
 
-// ------------------------------- Insercion -----------------------------
-// Fase 1: insercion BST normal; el nodo nuevo entra ROJO
 NodoRB* RBTree::insertarBST(Pedido* p) {
     NodoRB* nodo = new NodoRB(p);
     nodo->izq = TNULL;
@@ -81,28 +77,26 @@ NodoRB* RBTree::insertarBST(Pedido* p) {
     return nodo;
 }
 
-// Fase 2: reparar las propiedades Red-Black segun el color del tio
 void RBTree::repararInsercion(NodoRB* k) {
     NodoRB* u;
-    // (k->padre != nullptr) cubre el primer nodo: la raiz no tiene padre
     while (k->padre != nullptr && k->padre->color == ROJO) {
         if (k->padre == k->padre->padre->der) {
-            u = k->padre->padre->izq;                // tio
-            if (u->color == ROJO) {                  // Caso 1: tio rojo
+            u = k->padre->padre->izq;
+            if (u->color == ROJO) {
                 u->color = NEGRO;
                 k->padre->color = NEGRO;
                 k->padre->padre->color = ROJO;
                 k = k->padre->padre;
             } else {
-                if (k == k->padre->izq) {            // Caso 2: triangulo
+                if (k == k->padre->izq) {
                     k = k->padre;
                     rotacionDerecha(k);
                 }
-                k->padre->color = NEGRO;             // Caso 3: linea
+                k->padre->color = NEGRO;
                 k->padre->padre->color = ROJO;
                 rotacionIzquierda(k->padre->padre);
             }
-        } else {                                     // simetrico
+        } else {
             u = k->padre->padre->der;
             if (u->color == ROJO) {
                 u->color = NEGRO;
@@ -187,7 +181,6 @@ void RBTree::repararEliminacion(NodoRB* x) {
     x->color = NEGRO;
 }
 
-// Busca el nodo exacto de un pedido (por su clave cronologica)
 NodoRB* RBTree::buscarNodo(const Pedido* p) const {
     NodoRB* tmp = raiz;
     while (tmp != TNULL) {
@@ -211,7 +204,7 @@ void RBTree::eliminarNodoHelper(NodoRB* z) {
         x = z->izq;
         transplantar(z, z->izq);
     } else {
-        y = minimo(z->der);                  // sucesor in-orden
+        y = minimo(z->der);
         y_color_original = y->color;
         x = y->der;
         if (y->padre == z) x->padre = y;
@@ -237,12 +230,6 @@ bool RBTree::eliminar(const Pedido* p) {
     return true;
 }
 
-bool RBTree::contiene(const Pedido* p) const {
-    return buscarNodo(p) != TNULL;
-}
-
-// ------------------------------- Consultas -----------------------------
-// In-orden con corte temprano: se detiene al llegar a 'limite'
 void RBTree::inordenHelper(NodoRB* n, Recorrido& r) const {
     if (n == TNULL) return;
     if (r.limite >= 0 && r.contados >= r.limite) return;
@@ -263,8 +250,6 @@ int RBTree::inOrder(int limite, void (*visitar)(Pedido*, void*), void* ctx) cons
     return r.contados;
 }
 
-// Poda: si la fecha del nodo es < ini, TODO su subarbol izquierdo tambien lo
-// es (se descarta); si es > fin, se descarta TODO el subarbol derecho.
 void RBTree::rangoHelper(NodoRB* n, const string& ini, const string& fin,
                          int& cantidad, double& monto, int& visitados) const {
     if (n == TNULL) return;
@@ -303,7 +288,6 @@ int RBTree::recolectar(Pedido** out) const {
     return k;
 }
 
-// ------------------------------- Validacion ----------------------------
 int RBTree::alturaHelper(NodoRB* n) const {
     if (n == TNULL) return 0;
     int a = alturaHelper(n->izq);
@@ -311,8 +295,7 @@ int RBTree::alturaHelper(NodoRB* n) const {
     return 1 + (a > b ? a : b);
 }
 
-// Devuelve la altura negra, o -1 si alguna rama viola las propiedades
-// (nodo rojo con hijo rojo, alturas negras distintas o orden BST incorrecto).
+
 int RBTree::validarAlturaNegra(NodoRB* n) const {
     if (n == TNULL) return 1;
     if (n->izq != TNULL && compararCronologico(*n->izq->dato, *n->dato) >= 0) return -1;

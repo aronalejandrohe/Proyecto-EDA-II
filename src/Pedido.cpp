@@ -1,12 +1,9 @@
 #include "../include/Pedido.h"
 #include <iostream>
 #include <iomanip>
+#include <cmath>
+#include <cstdlib>
 using namespace std;
-
-const char* const estados_validos[] = {
-    "Pendiente", "Iniciado", "Enviado", "EnTransito", "Entregado", "Cancelado"
-};
-const int num_estados = 6;
 
 Pedido::Pedido() {
     nivelPrioridad = 0;
@@ -27,11 +24,9 @@ Pedido::Pedido(string id, string dni, string tipo, int prioridad,
     heapIdx        = -1;
 }
 
-string Pedido::getFechaHora() const {
-    return fecha + " " + hora;
-}
-
 void Pedido::imprimir() const {
+    ios::fmtflags formato = cout.flags();
+    streamsize precision = cout.precision();
     cout << "ID: "         << idPedido
          << " | DNI: "     << dniCliente
          << " | Tipo: "    << tipoEnvio
@@ -41,6 +36,8 @@ void Pedido::imprimir() const {
          << " | Hora: "    << hora
          << " | Estado: "  << estado
          << endl;
+    cout.flags(formato);
+    cout.precision(precision);
 }
 
 int compararCronologico(const Pedido& a, const Pedido& b) {
@@ -64,7 +61,7 @@ bool fechaValida(const string& f) {
     int anio = atoi(f.substr(0, 4).c_str());
     int mes  = atoi(f.substr(5, 2).c_str());
     int dia  = atoi(f.substr(8, 2).c_str());
-    if (mes < 1 || mes > 12 || dia < 1) return false;
+    if (anio < 1 || mes < 1 || mes > 12 || dia < 1) return false;
     int dias[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     bool bisiesto = (anio % 4 == 0 && anio % 100 != 0) || (anio % 400 == 0);
     int maxDia = dias[mes - 1] + ((mes == 2 && bisiesto) ? 1 : 0);
@@ -82,7 +79,17 @@ bool horaValida(const string& h) {
 }
 
 bool estadoValido(const string& e) {
-    for (int i = 0; i < num_estados; i++)
-        if (e == estados_validos[i]) return true;
-    return false;
+    return e == "Pendiente" || e == "Iniciado" ||
+           e == "Enviado" || e == "EnTransito" ||
+           e == "Entregado" || e == "Cancelado";
+}
+
+bool pedidoValido(const Pedido& p) {
+    if (p.idPedido.empty() || p.dniCliente.size() != 8) return false;
+    if (!soloDigitos(p.dniCliente, 0, 8)) return false;
+    if (p.tipoEnvio != "Normal" && p.tipoEnvio != "Express" &&
+        p.tipoEnvio != "SameDay") return false;
+    if (p.nivelPrioridad < 1 || p.nivelPrioridad > 10) return false;
+    if (!std::isfinite(p.montoDolares) || p.montoDolares < 0) return false;
+    return fechaValida(p.fecha) && horaValida(p.hora) && estadoValido(p.estado);
 }
