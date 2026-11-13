@@ -39,10 +39,15 @@
 		<Unit filename="include/HashTable.h" />
 		<Unit filename="include/HeapArray.h" />
 		<Unit filename="include/Pedido.h" />
+		<Unit filename="include/RBTree.h" />
+		<Unit filename="include/SistemaPedidos.h" />
+		<Unit filename="include/Utils.h" />
 		<Unit filename="src/CsvLoader.cpp" />
 		<Unit filename="src/HashTable.cpp" />
 		<Unit filename="src/HeapArray.cpp" />
 		<Unit filename="src/Pedido.cpp" />
+		<Unit filename="src/RBTree.cpp" />
+		<Unit filename="src/SistemaPedidos.cpp" />
 		<Unit filename="src/main.cpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
